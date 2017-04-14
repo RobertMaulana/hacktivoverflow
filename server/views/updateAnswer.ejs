@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Update Answer</title>
+  </head>
+  <body>
+    <form action="/answer/<%= data.id %>" method="post">
+      <label for="answer">Answer</label><br>
+      <textarea name="answer" rows="8" cols="80"><%= data.answer %></textarea><br>
+      <button type="submit">Submit</button>
+    </form>
+  </body>
+</html>
