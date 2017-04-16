@@ -6,7 +6,8 @@ const express         = require('express'),
 
 router.post("/login", helperPassport, controller.loginUser);
 router.get("/", token, controller.dataUser);
-router.post("/", token, controller.createUser);
+router.get("/activation/:code", controller.userActivation);
+router.post("/signup", controller.createUser);
 router.put("/:id", token, controller.updateUser);
 router.delete("/:id", token, controller.deleteUser);
 

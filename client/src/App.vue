@@ -1,23 +1,28 @@
 <template>
-  <app-stack></app-stack>
+  <div id="app">
+    <app-stack></app-stack>
+    <router-view></router-view>
+  </div>
 </template>
 
 <script>
-  import Home from "./components/Home.vue"
+  import AppNav from './components/AppNav';
   export default {
+    name: 'app',
     components: {
-      "app-stack": Home
+      "app-stack": AppNav
     }
   }
 </script>
 
 <style>
 #app {
-  font-family: 'Avenir', Helvetica, Arial, sans-serif;
+  font-family: 'Lato','Avenir', Helvetica, Arial, sans-serif;
+  font-size: 16px;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;
   color: #2c3e50;
-  margin-top: 60px;
+  /*margin-top: 60px;*/
 }
 </style>

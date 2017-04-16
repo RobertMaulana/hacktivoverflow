@@ -1,4 +1,5 @@
 const db = require('../models');
+const firebase = require('firebase');
 
 let dataAnswer = (req, res) => {
   db.Answer
@@ -12,25 +13,36 @@ let dataAnswer = (req, res) => {
 }
 
 let createAnswer = (req, res) => {
+  firebase.database().ref('answer/').set({
+    title_question: req.body.title_question,
+    answer: req.body.answer,
+    timeStamps: (new Date().getTime()).toString(),
+  });
   db.Answer
     .create(
-      {QuestionId: Number(req.body.id_question), answer: req.body.answer, vote: 0})
+      {QuestionId: Number(req.body.QuestionId), answer: req.body.answer, vote: 0, UserId: req.body.UserId})
     .then((result) => {
       db.Question
         .findOne(
-          {id: Number(req.body.id_question), title_question: req.body.title_question}
+          {id: Number(req.body.QuestionId), title_question: req.body.title_question}
         )
         .then((dataQuestions) => {
-          db.Comment
-            .create(
-              {AnswerId: result.id, comment: req.body.comment, UserId: dataQuestions.UserId}
-            )
-            .then((commentDone) => {
-              res.send(commentDone)
-            })
-            .catch((err) => {
-              res.send(err.message)
-            })
+          if (req.body.comment != null || req.body.comment != "") {
+            db.Comment
+              .create(
+                {AnswerId: result.id, comment: req.body.comment, UserId: dataQuestions.UserId}
+              )
+              .then((commentDone) => {
+                // res.send(commentDone)
+              })
+              .catch((err) => {
+                res.send(err.message)
+              })
+          }else {
+            // res.send(dataQuestions)
+          }
+          res.send(result)
+
         })
     })
     .catch((err) => {
@@ -64,50 +76,6 @@ let updateAnswerFinal = (req, res) => {
     })
 }
 
-let upvoteAnswer = (req, res) => {
-  db.Answer
-    .findById(req.params.id)
-    .then((result) => {
-        result.vote += 1;
-        db.Answer
-          .update(
-            {vote: result.vote},
-            {where: {id: req.params.id}}
-          )
-          .then((result) => {
-            res.send(result)
-          })
-          .catch((err) => {
-            res.send(err.message)
-          })
-    })
-    .catch((err) => {
-      res.send(err.message)
-    })
-}
-
-let downvoteAnswer = (req, res) => {
-  db.Answer
-    .findById(req.params.id)
-    .then((result) => {
-        result.vote -= 1;
-        db.Answer
-          .update(
-            {vote: result.vote},
-            {where: {id: req.params.id}}
-          )
-          .then((res) => {
-            res.send(res)
-          })
-          .catch((err) => {
-            res.send(err.message)
-          })
-    })
-    .catch((err) => {
-      res.send(err.message)
-    })
-}
-
 let deleteAnswer = (req, res) => {
   db.Answer
     .destroy(req.params.id)
@@ -120,5 +88,5 @@ let deleteAnswer = (req, res) => {
 }
 
 module.exports = {
-  dataAnswer, createAnswer, updateAnswer, deleteAnswer, updateAnswerFinal, upvoteAnswer, downvoteAnswer
+  dataAnswer, createAnswer, updateAnswer, deleteAnswer, updateAnswerFinal
 }

@@ -1,10 +1,11 @@
 const express = require('express'),
       router = express.Router(),
-      controller = require("../controllers/comment_controller");
+      controller = require("../controllers/comment_controller"),
+      token = require('../helpers/token');
 
-router.get("/", controller.dataComment);
-router.post("/", controller.createComment);
-router.put("/:id", controller.updateComment);
-router.delete("/:id", controller.deleteComment);
+router.get("/", token, controller.dataComment);
+router.post("/", token, controller.createComment);
+router.put("/:id", token, controller.updateComment);
+router.delete("/:id", token, controller.deleteComment);
 
 module.exports = router;

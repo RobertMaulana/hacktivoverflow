@@ -15,15 +15,23 @@ passport.use(new Strategy(
         if (result == null) {
           next("Username does not exist!")
         }else {
-          if (username == result.username && hash.verify(password, result.password)) {
-            // var token = jwt.sign({ username: result.username, role: result.role }, 'secret', {expiresIn: 60 });
-            var token = jwt.sign({ username: result.username }, 'secret');
-            next(null, {token: token});
+          // console.log(result.status_activation == true);
+          if (username == result.username && hash.verify(password, result.password) && (result.status_activation == true)) {
+            var token = jwt.sign({ username: result.username }, 'secret', {expiresIn: '1h'});
+            let data = {
+              token: token,
+              username: result.username,
+              id: result.id
+            }
+            next(null, data);
+          }else {
+            next("You need an activation code from the email url has been sent!")
           }
         }
       })
       .catch((err) => {
-        res.send(err.message)
+        // res.send(err.message)
+        console.log(err.message);
       })
   }
 ));
