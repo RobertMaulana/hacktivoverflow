@@ -39,7 +39,8 @@
               <!-- <li></li> -->
             </ul>
             <hr>
-            <el-button type="primary" icon="edit" @click="openModalComment(dataAnswer.id)">Comment</el-button>
+            <el-button type="primary" icon="more" @click="openModalComment(dataAnswer.id)">Comment</el-button>
+            <!-- <el-button type="danger" icon="delete" @click="deleteAnswer(dataAnswer.id)">Delete</el-button> -->
           </div>
         </div>
       </el-card>
@@ -156,6 +157,12 @@ export default {
           title: `Wuuuuppsss!!!`,
           message: h('p', { style: 'color: green' }, 'You have been downvote to this answer!')
         });
+      }else if(string == "answer-deleted!"){
+        this.$notify({
+          title: `Wuuuuppsss!!!`,
+          message: h('p', { style: 'color: red' }, 'Answer has been deleted!'),
+          type: 'error'
+        });
       }else {
         this.$notify({
           title: `Thankyou ${window.localStorage.getItem('user')}`,
@@ -194,7 +201,6 @@ export default {
         UserName: window.localStorage.getItem('user')
       },{headers: {'token': window.localStorage.getItem('token')}})
       .then((res) => {
-        // console.log(res.data);
         self.user       = res.data.username
         self.createdAt  = res.data.createdAt
         self.title      = res.data.data.title_question
@@ -219,7 +225,6 @@ export default {
         UserName: window.localStorage.getItem('user')
       },{headers: {'token': window.localStorage.getItem('token')}})
       .then((res) => {
-
         self.user       = res.data.username
         self.createdAt  = res.data.createdAt
         self.title      = res.data.data.title_question
@@ -248,9 +253,31 @@ export default {
       .catch((err) => {
         console.log(err);
       })
-
+    },
+    deleteAnswer(id){
+      let conf = confirm("Are you sure?")
+      if (conf) {
+        var self = this;
+        axios.post('http://localhost:3000/answer/delete', {
+          QuestionId: this.$route.query.id,
+          AnswerId: id,
+          UserId: window.localStorage.getItem('id'),
+          UserName: window.localStorage.getItem('user')
+        },{headers: {'token': window.localStorage.getItem('token')}})
+        .then((res) => {
+          console.log("disini");
+          // self.user       = res.data.username
+          // self.createdAt  = res.data.createdAt
+          // self.title      = res.data.data.title_question
+          // self.question   = res.data.data.question
+          // self.answers    = res.data.dataAnswers
+          // self.open("answer-deleted!")
+        })
+        .catch((err) => {
+          console.log(err);
+        })
+      }
     }
-
   },
   mounted: function(){
     this.checkCookie()

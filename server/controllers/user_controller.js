@@ -22,8 +22,8 @@ let createUser = (req, res) => {
   let transporter = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-          user: process.env.MAIL_ADDRESS,
-          pass: process.env.MAIL_KEY
+          user: "maulana.robert.mr@gmail.com",
+          pass: "pgg773sG56"
       }
   });
 

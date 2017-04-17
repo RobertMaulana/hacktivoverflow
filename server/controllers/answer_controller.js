@@ -1,5 +1,6 @@
 const db = require('../models');
 const firebase = require('firebase');
+const moment = require("moment");
 
 let dataAnswer = (req, res) => {
   db.Answer
@@ -78,9 +79,36 @@ let updateAnswerFinal = (req, res) => {
 
 let deleteAnswer = (req, res) => {
   db.Answer
-    .destroy(req.params.id)
+    .destroy({where: {id: req.body.AnswerId}})
     .then((result) => {
-      res.send(result)
+      db.Question
+        .findById(req.body.QuestionId, {include: {model: db.User}})
+        .then((result) => {
+          let fullDataAnswer = []
+          let fullDataComment = []
+          db.Answer
+            .findAll({
+               where: {
+                   QuestionId: result.id
+               },
+               include: [
+                   { model: db.Comment }
+               ]
+            })
+            .then((dataAnswer) => {
+              let detailQuestion = {
+                data: result,
+                username: result.User.username,
+                createdAt: moment(result.createdAt).format("YYYY MMMM DD HH:mm:ss"),
+                dataAnswers: dataAnswer,
+              }
+              res.send(detailQuestion)
+            })
+
+        })
+        .catch((err) => {
+          res.send(err.message)
+        })
     })
     .catch((err) => {
       res.send(err.message)
