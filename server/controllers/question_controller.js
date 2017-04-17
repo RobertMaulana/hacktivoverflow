@@ -14,7 +14,6 @@ let dataQuestion = (req, res) => {
 
 let dataQuestionById = (req, res) => {
   db.Question
-    // .findById(req.params.id, {include: {model: db.Answer, include: [db.Comment]}})
     .findById(req.params.id, {include: {model: db.User}})
     .then((result) => {
       let fullDataAnswer = []
@@ -29,24 +28,11 @@ let dataQuestionById = (req, res) => {
            ]
         })
         .then((dataAnswer) => {
-          // console.log(dataAnswer);
-          // dataAnswer.forEach((answers) => {
-          //   // answers.Comments.forEach((comments) => {
-          //   //   // console.log(comments.comment);
-          //   //   // fullDataComment.push(comments.comment)
-          //   //   console.log(comments.comment);
-          //   // })
-          //   // answers["newComment"] = "tes"
-          //   fullDataAnswer.push(answers)
-          //
-          //
-          // })
           let detailQuestion = {
             data: result,
             username: result.User.username,
             createdAt: moment(result.createdAt).format("YYYY MMMM DD HH:mm:ss"),
             dataAnswers: dataAnswer,
-            // comments: fullDataComment
           }
           res.send(detailQuestion)
         })
@@ -58,9 +44,8 @@ let dataQuestionById = (req, res) => {
 }
 
 let createQuestion = (req, res) => {
-  // console.log(req.body);
   db.Question
-    .create(req.body)
+    .create({UserId: Number(req.body.UserId), title_question: req.body.title_question, question: req.body.question})
     .then((result) => {
       res.send(result)
     })
@@ -71,8 +56,7 @@ let createQuestion = (req, res) => {
 
 let updateQuestion = (req, res) => {
   db.Question
-    .update(
-      {title_question: req.body.title_question, question: req.body.question},
+    .findOne(
       {where: {id: req.params.id}}
     )
     .then((result) => {
@@ -83,11 +67,43 @@ let updateQuestion = (req, res) => {
     })
 }
 
+let updateQuestionById = (req, res) => {
+  db.Question
+    .update(
+      {title_question: req.body.title_question, question: req.body.question},
+      {where: {UserId: Number(req.body.UserId)}}
+    )
+    .then((result) => {
+      db.Question
+        .findAll({include: {model: db.Answer, include: [db.Comment]}})
+        .then((resultQuestion) => {
+          res.send(resultQuestion)
+        })
+        .catch((err) => {
+          res.send(err.message)
+        })
+    })
+    .catch((err) => {
+      res.send(err.message)
+    })
+}
+
 let deleteQuestion = (req, res) => {
   db.Question
-    .destroy(req.params.id)
+    .destroy({where: {id: req.params.id}})
     .then((result) => {
-      res.send(result)
+      db.Answer
+        .destroy({where: {QuestionId: req.params.id}})
+        .then((resDelAnswer) => {
+        })
+        db.Question
+          .findAll({include: {model: db.Answer, include: [db.Comment]}})
+          .then((resultQuestion) => {
+            res.send(resultQuestion)
+          })
+          .catch((err) => {
+            res.send(err.message)
+          })
     })
     .catch((err) => {
       res.send(err.message)
@@ -95,5 +111,5 @@ let deleteQuestion = (req, res) => {
 }
 
 module.exports = {
-  dataQuestion, createQuestion, updateQuestion, deleteQuestion, dataQuestionById
+  dataQuestion, createQuestion, updateQuestion, deleteQuestion, dataQuestionById, updateQuestionById
 }

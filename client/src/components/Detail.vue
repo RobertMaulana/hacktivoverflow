@@ -34,9 +34,9 @@
                 </div>
               </div>
             </div>
-            <h5>Comments</h5>
+            <h5></h5>
             <ul>
-              <li></li>
+              <!-- <li></li> -->
             </ul>
             <hr>
             <el-button type="primary" icon="edit" @click="openModalComment(dataAnswer.id)">Comment</el-button>
@@ -119,7 +119,7 @@ export default {
       .then((res) => {
         self.clearInput()
         self.open()
-        self.answers.push(res.data.answer)
+        self.answers.push(res.data)
       })
       .catch((err) => {
         console.log(err);
@@ -194,8 +194,13 @@ export default {
         UserName: window.localStorage.getItem('user')
       },{headers: {'token': window.localStorage.getItem('token')}})
       .then((res) => {
-        console.log(res.data);
-        if (res.data == "sorry, you already vote to this answer!") {
+        // console.log(res.data);
+        self.user       = res.data.username
+        self.createdAt  = res.data.createdAt
+        self.title      = res.data.data.title_question
+        self.question   = res.data.data.question
+        self.answers    = res.data.dataAnswers
+        if (res.data.message == "sorry, you already vote to this answer!") {
           self.open("already-vote")
         }else {
           self.open("voted!")
@@ -214,8 +219,13 @@ export default {
         UserName: window.localStorage.getItem('user')
       },{headers: {'token': window.localStorage.getItem('token')}})
       .then((res) => {
-        console.log(res.data);
-        if (res.data == "You must upvote this answer first!") {
+
+        self.user       = res.data.username
+        self.createdAt  = res.data.createdAt
+        self.title      = res.data.data.title_question
+        self.question   = res.data.data.question
+        self.answers    = res.data.dataAnswers
+        if (res.data.message == "You must upvote this answer first!") {
           self.open("failDownvote!")
         }else {
           self.open("downvote!")
@@ -265,8 +275,8 @@ export default {
     top: 100;
     float: right;
     position: absolute;
-    right: 20px;
-    margin-top: 300px;
+    right: 30px;
+    margin-top: -30px;
   }
   .el-textarea__inner{
     height: 200px !important;

@@ -6,8 +6,9 @@ const express = require('express'),
 
 router.get("/", token, controller.dataQuestion);
 router.get("/:id", token, controller.dataQuestionById);
+router.get("/edit/:id", token, controller.updateQuestion);
+router.post("/update", token, controller.updateQuestionById);
 router.post("/", token, controller.createQuestion);
-router.put("/:id", token, controller.updateQuestion);
 router.delete("/:id", token, controller.deleteQuestion);
 
 module.exports = router;

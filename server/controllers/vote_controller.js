@@ -1,5 +1,6 @@
 const db = require('../models');
 const firebase = require('firebase');
+const moment = require("moment");
 
 let upvote = (req, res) => {
   db.Vote
@@ -18,22 +19,74 @@ let upvote = (req, res) => {
                     {where: {id: req.body.AnswerId}}
                   )
                   .then((voteUpdated) => {
+                    db.Question
+                      .findById(req.body.QuestionId, {include: {model: db.User}})
+                      .then((result) => {
+                        let fullDataAnswer = []
+                        let fullDataComment = []
+                        db.Answer
+                          .findAll({
+                             where: {
+                                 QuestionId: result.id
+                             },
+                             include: [
+                                 { model: db.Comment }
+                             ]
+                          })
+                          .then((dataAnswer) => {
+                            let detailQuestion = {
+                              data: result,
+                              username: result.User.username,
+                              createdAt: moment(result.createdAt).format("YYYY MMMM DD HH:mm:ss"),
+                              dataAnswers: dataAnswer,
+                            }
+                            res.send(detailQuestion)
+                          })
+
+                      })
+                      .catch((err) => {
+                        res.send(err.message)
+                      })
+
                   })
                   .catch((err) => {
                     res.send(err.message)
                   })
-                  let data = {
-                    vote: answers.vote,
-                    message: "voted!"
-                  }
-                  res.send(data)
               })
           })
           .catch((err) => {
             res.send(err.message)
           })
       }else {
-        res.send("sorry, you already vote to this answer!")
+        db.Question
+          .findById(req.body.QuestionId, {include: {model: db.User}})
+          .then((result) => {
+            let fullDataAnswer = []
+            let fullDataComment = []
+            db.Answer
+              .findAll({
+                 where: {
+                     QuestionId: result.id
+                 },
+                 include: [
+                     { model: db.Comment }
+                 ]
+              })
+              .then((dataAnswer) => {
+                let detailQuestion = {
+                  data: result,
+                  username: result.User.username,
+                  createdAt: moment(result.createdAt).format("YYYY MMMM DD HH:mm:ss"),
+                  dataAnswers: dataAnswer,
+                  message: "sorry, you already vote to this answer!"
+                }
+                res.send(detailQuestion)
+              })
+
+          })
+          .catch((err) => {
+            res.send(err.message)
+          })
       }
       // res.send(votes)
     })
@@ -46,7 +99,6 @@ let downvote = (req, res) => {
   db.Vote
     .findAll({where: {AnswerId: req.body.AnswerId, UserIdVote: req.body.UserId}})
     .then((result) => {
-      // console.log(result[0].id);
       if (result != "") {
         db.Vote
           .destroy({where: {id: result[0].id}})
@@ -60,19 +112,70 @@ let downvote = (req, res) => {
                     {where: {id: req.body.AnswerId}}
                   )
                   .then((voteUpdated) => {
+                    db.Question
+                      .findById(req.body.QuestionId, {include: {model: db.User}})
+                      .then((result) => {
+                        let fullDataAnswer = []
+                        let fullDataComment = []
+                        db.Answer
+                          .findAll({
+                             where: {
+                                 QuestionId: result.id
+                             },
+                             include: [
+                                 { model: db.Comment }
+                             ]
+                          })
+                          .then((dataAnswer) => {
+                            let detailQuestion = {
+                              data: result,
+                              username: result.User.username,
+                              createdAt: moment(result.createdAt).format("YYYY MMMM DD HH:mm:ss"),
+                              dataAnswers: dataAnswer,
+                            }
+                            res.send(detailQuestion)
+                          })
+
+                      })
+                      .catch((err) => {
+                        res.send(err.message)
+                      })
                   })
                   .catch((err) => {
                     res.send(err.message)
                   })
-                  let data = {
-                    vote: answers.vote,
-                    message: "downvote success!"
-                  }
-                  res.send(data)
               })
           })
       }else {
-        res.send("You must upvote this answer first!")
+        db.Question
+          .findById(req.body.QuestionId, {include: {model: db.User}})
+          .then((result) => {
+            let fullDataAnswer = []
+            let fullDataComment = []
+            db.Answer
+              .findAll({
+                 where: {
+                     QuestionId: result.id
+                 },
+                 include: [
+                     { model: db.Comment }
+                 ]
+              })
+              .then((dataAnswer) => {
+                let detailQuestion = {
+                  data: result,
+                  username: result.User.username,
+                  createdAt: moment(result.createdAt).format("YYYY MMMM DD HH:mm:ss"),
+                  dataAnswers: dataAnswer,
+                  message: "You must upvote this answer first!"
+                }
+                res.send(detailQuestion)
+              })
+
+          })
+          .catch((err) => {
+            res.send(err.message)
+          })
       }
     })
     .catch((err) => {
